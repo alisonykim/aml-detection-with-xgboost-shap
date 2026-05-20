@@ -375,6 +375,7 @@ def plot_waterfall(
 	print(f'Risk Score: {y_prob[example_pos]:.4f}')
 	print(f'True Label: Laundering')
 
+	plt.figure(figsize=(16, 10))
 	shap.plots.waterfall(
 		shap.Explanation(
 			values=shap_values[example_pos],
@@ -384,6 +385,7 @@ def plot_waterfall(
 		),
 		max_display=max_display, show=False
 	)
+	plt.tight_layout()
 	plt.savefig('outputs/shap_waterfall.png')
 	plt.close()
 
