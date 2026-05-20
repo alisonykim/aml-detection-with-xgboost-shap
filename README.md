@@ -27,9 +27,9 @@ At the F1-optimal threshold of 0.060:
 
 ## Key Findings
 
-**`scale_pos_weight=1` outperforms the theoretically correct ratio ($ \approx 980 $).** Despite a 980:1 class imbalance, no class weighting correction produces the best validation AUC-PR. This is a consequence of temporal distribution shift: the fraud rate increases from 0.08% in train to 0.20% in test, meaning aggressive minority class weighting causes the model to overfit to training-period laundering patterns rather than learning signal that generalizes forward in time.
+**`scale_pos_weight=1` outperforms the theoretically correct ratio (≈ 980).** Despite a 980:1 class imbalance, no class weighting correction produces the best validation AUC-PR. This is a consequence of temporal distribution shift: the fraud rate increases from 0.08% in train to 0.20% in test, meaning aggressive minority class weighting causes the model to overfit to training-period laundering patterns rather than learning signal that generalizes forward in time.
 
-**Payment format and transaction frequency dominate.** SHAP analysis reveals `payment_format_enc` ($\overline{|\text{SHAP}|} \approx 2.2$) and `acct_txn_count_7d` ($ \approx 1.0 $) as the two strongest predictors, which is consistent with the AML literature on layering behavior and smurfing.
+**Payment format and transaction frequency dominate.** SHAP analysis reveals `payment_format_enc` (mean |SHAP| ≈ 2.2) and `acct_txn_count_7d` (≈ 1.0) as the two strongest predictors, which is consistent with the AML literature on layering behavior and smurfing.
 
 ![SHAP Beeswarm](images/shap_beeswarm.png)
 
@@ -109,7 +109,7 @@ IBM Synthetic AML Dataset: 5,078,345 transactions across 17 days (September 2022
 * **Rolling behavioral (7d/30d):** transaction count; amount sum, mean, median, max, std per sending account
 
 ### Model Selection & Hyperparameter Sweep
-A joint sweep over `max_depth` $ \in {4, 5, 6, 7, 8} $ and `scale_pos_weight` \in $ [1, 1500] $ selected on **validation AUC-PR only**. Best parameter values: `max_depth=7`, `scale_pos_weight=1`.
+A joint sweep over `max_depth` ∈ {4, 5, 6, 7, 8} and `scale_pos_weight` ∈ [1, 1500] selected on **validation AUC-PR only**. Best parameter values: `max_depth=7`, `scale_pos_weight=1`.
 
 ### Evaluation
 Primary metric is **AUC-PR**, which is insensitive to the large negative class, unlike AUC-ROC which is inflated under class imbalance (Davis & Goadrich, 2006). Threshold selected by maximizing F1 on the test set.
