@@ -15,9 +15,9 @@ Built as a portfolio project in the context of the Swiss regulatory framework (r
 | XGBoost (Test) | 0.321 | 0.980 |
 
 At the F1-optimal threshold of 0.060:
-* **Precision:** 0.376 — roughly 1 in 3 flagged transactions is genuine laundering
-* **Recall:** 0.354 — the model detects approximately 1 in 3 laundering cases
-* **Operational lift:** ~60x above the population base rate of 0.10%
+* **Precision = $0.376$:** roughly 1 in 3 flagged transactions is genuine laundering
+* **Recall = $0.354$:** the model detects approximately 1 in 3 laundering cases
+* **Operational lift:** ca. 60x above the population base rate of 0.10%
 
 ![PR and ROC Curves](images/eval_pr_roc_curves.png)
 
@@ -27,9 +27,9 @@ At the F1-optimal threshold of 0.060:
 
 ## Key Findings
 
-**`scale_pos_weight=1` outperforms the theoretically correct ratio (~980).** Despite a 980:1 class imbalance, no class weighting correction produces the best validation AUC-PR. This is a consequence of temporal distribution shift: the fraud rate increases from 0.08% in train to 0.20% in test, meaning aggressive minority class weighting causes the model to overfit to training-period laundering patterns rather than learning signal that generalizes forward in time.
+**`scale_pos_weight=1` outperforms the theoretically correct ratio ($ \approx 980 $).** Despite a 980:1 class imbalance, no class weighting correction produces the best validation AUC-PR. This is a consequence of temporal distribution shift: the fraud rate increases from 0.08% in train to 0.20% in test, meaning aggressive minority class weighting causes the model to overfit to training-period laundering patterns rather than learning signal that generalizes forward in time.
 
-**Payment format and transaction frequency dominate.** SHAP analysis reveals `payment_format_enc` (mean |SHAP| ≈ 2.2) and `acct_txn_count_7d` (≈ 1.0) as the two strongest predictors, which is consistent with the AML literature on layering behavior and smurfing.
+**Payment format and transaction frequency dominate.** SHAP analysis reveals `payment_format_enc` ($\overline{|\text{SHAP}|} \approx 2.2$) and `acct_txn_count_7d` ($ \approx 1.0 $) as the two strongest predictors, which is consistent with the AML literature on layering behavior and smurfing.
 
 ![SHAP Beeswarm](images/shap_beeswarm.png)
 
@@ -99,17 +99,17 @@ jupyter notebook aml_xgboost_shap.ipynb
 ## Methodology
 
 ### Dataset
-IBM Synthetic AML Dataset — 5,078,345 transactions across 17 days (September 2022), 0.10% fraud rate, 15 payment currencies, 7 payment formats. Synthetic data with no real identifying data.
+IBM Synthetic AML Dataset: 5,078,345 transactions across 17 days (September 2022), 0.10% fraud rate, 15 payment currencies, 7 payment formats. Synthetic data with no real identifying data.
 
 ### Features
 27 features across four categories:
 * **Temporal:** hour, day of week, weekend flag, time-of-day bucket
 * **Amount:** log-transformed paid/received amounts, ratio, difference
 * **Bank/currency:** same-bank flag, sending/receiving bank identity, cross-currency flag
-* **Rolling behavioral (7d/30d):** transaction count, amount sum/mean/median/max/std per sending account
+* **Rolling behavioral (7d/30d):** transaction count; amount sum, mean, median, max, std per sending account
 
 ### Model Selection & Hyperparameter Sweep
-A joint sweep over `max_depth` ∈ {4, 5, 6, 7, 8} and `scale_pos_weight` ∈ {1–1500} selected on **validation AUC-PR only**. Best params: `max_depth=7`, `scale_pos_weight=1`.
+A joint sweep over `max_depth` $ \in {4, 5, 6, 7, 8} $ and `scale_pos_weight` \in $ [1, 1500] $ selected on **validation AUC-PR only**. Best parameter values: `max_depth=7`, `scale_pos_weight=1`.
 
 ### Evaluation
 Primary metric is **AUC-PR**, which is insensitive to the large negative class, unlike AUC-ROC which is inflated under class imbalance (Davis & Goadrich, 2006). Threshold selected by maximizing F1 on the test set.
@@ -121,10 +121,10 @@ SHAP TreeExplainer on a 2,000-row test sample. Beeswarm, bar, waterfall, and dep
 
 ## Limitations
 
-* **Synthetic data:** results require validation on real transaction data
-* **Temporal distribution shift:** fraud rate triples from train (0.08%) to test (0.20%), making val and test AUC-PR not directly comparable
-* **Static model:** laundering patterns evolve; retraining and monitoring required
-* **No network features:** graph-level signals (transaction networks between accounts) are absent: a strong candidate for future work
+* **Synthetic data:** Results require validation on real transaction data
+* **Temporal distribution shift:** Fraud rate triples from train (0.08%) to test (0.20%), making val and test AUC-PR not directly comparable
+* **Static model:** Laundering patterns evolve; retraining and monitoring required
+* **No network features:** Graph-level signals (transaction networks between accounts) are absent: a strong candidate for future work
 
 ---
 
